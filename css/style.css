@@ -489,3 +489,195 @@ body {
     color: #1c1e21;
     border-bottom-left-radius: 3px;
 }
+
+/* PHONG CÁCH INSTAGRAM / THREADS MINIMALIST */
+body {
+    background-color: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #262626;
+}
+
+/* Bài viết (Post) */
+.post-item {
+    background: #ffffff;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Header bài viết (Avatar + Tên) */
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    border-bottom: 1px solid #efefef;
+}
+
+.post-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.post-header-left img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #dbdbdb;
+}
+
+.post-header-left div {
+    font-size: 14px;
+}
+
+.post-time {
+    color: #8e8e8e;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+/* Nội dung chữ */
+.post-content-text {
+    padding: 14px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* Hình ảnh bài đăng */
+.post-image {
+    width: 100%;
+    max-height: 600px;
+    object-fit: cover;
+    display: block;
+}
+
+/* Dàn nút Tương tác (Tim, Comment) */
+.post-actions {
+    padding: 10px 14px;
+    display: flex;
+    gap: 15px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 24px; /* Icon to như Insta */
+    color: #262626;
+    padding: 0;
+    transition: transform 0.1s;
+}
+
+.action-btn:active {
+    transform: scale(0.9);
+}
+
+.btn-like {
+    font-size: 26px;
+}
+
+/* Số lượt thích & Comment */
+.post-stats {
+    padding: 0 14px 10px 14px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    gap: 15px;
+}
+
+/* Khu vực nhập Comment */
+.comment-input-wrapper {
+    display: flex;
+    padding: 10px 14px;
+    border-top: 1px solid #efefef;
+}
+
+.input-comment {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: transparent;
+}
+
+.btn-send-comment {
+    background: none;
+    border: none;
+    color: #0095f6; /* Xanh đặc trưng của Insta */
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-send-comment:hover {
+    color: #00376b;
+}
+
+/* Khu vực đăng bài mới (Tạo Post) */
+.create-post {
+    background: #ffffff;
+    border: 1px solid #dbdbdb;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 30px;
+}
+
+#post-content {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    resize: none;
+    min-height: 50px;
+}
+
+#btn-post {
+    background-color: #0095f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+    cursor: pointer;
+    float: right;
+}
+
+/* Làm mượt khung nhập liệu */
+.create-post {
+    padding: 15px !important;
+    border-radius: 15px !important;
+    margin-bottom: 20px;
+}
+
+#post-content {
+    width: 100%;
+    border: none !important;
+    outline: none !important;
+    font-size: 16px;
+    background: transparent;
+    margin-bottom: 10px;
+    font-family: inherit;
+}
+
+/* Nút Đăng kiểu bo tròn hiện đại */
+.btn-primary {
+    background: #0095f6 !important;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background: #1877f2 !important;
+    transform: translateY(-2px);
+}
+
+/* Kiểu dáng cho ảnh trong bài viết khi hiển thị trên News Feed */
+.post-image {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+    display: block;
+}

@@ -1,10 +1,14 @@
-import { SocialNetwork } from './SocialNetwork.js';
+import {SocialNetwork} from './SocialNetwork.js';
 
 const app = new SocialNetwork();
 let currentUser = null;
 
-// Hàm lấy DOM an toàn
-const getEl = (id) => document.getElementById(id);
+// Hàm lấy DOM cực kỳ an toàn (không làm sập web nếu thiếu ID)
+const getEl = (id) => {
+    const el = document.getElementById(id);
+    if (!el) console.warn(`Cảnh báo: Không tìm thấy ID '${id}' trong file HTML!`);
+    return el;
+};
 
 // DOM Elements
 const authScreen = getEl('auth-screen');
@@ -19,9 +23,16 @@ const btnLogout = getEl('btn-logout');
 const uiAvatar = getEl('current-user-avatar');
 const uiName = getEl('current-user-name');
 const btnChangeAvatar = getEl('btn-change-avatar');
+
+// Các biến cho phần Đăng bài
 const postInput = getEl('post-content');
-const postImageUrl = getEl('post-image-url');
+const postImageFile = getEl('post-image-file');
+const imagePreviewContainer = getEl('image-preview-container');
+const imagePreview = getEl('image-preview');
+const btnRemoveImage = getEl('btn-remove-image');
+let selectedFile = null;
 const btnPost = getEl('btn-post');
+
 const searchInput = getEl('search-input');
 const newsFeed = getEl('news-feed');
 
@@ -44,107 +55,141 @@ const btnSendChat = getEl('btn-send-chat');
 let currentChatPartnerId = null;
 
 // ==========================================
-// THAY ĐỔI LỚN NHẤT NẰM Ở ĐÂY: Lắng nghe sự kiện Realtime
+// 1. Lắng nghe sự kiện Realtime & Khởi tạo
 // ==========================================
 app.onDataChanged = () => {
-    // Mỗi khi Firebase báo có dữ liệu mới, hàm này tự động chạy!
     if (currentUser) {
-        // Cập nhật lại avatar/tên lỡ có thay đổi
         const updatedUser = app.users.find(u => u.id === currentUser.id);
-        if(updatedUser) {
+        if (updatedUser) {
             currentUser = updatedUser;
-            uiAvatar.src = currentUser.avatar;
-            uiName.textContent = currentUser.name;
+            if (uiAvatar) uiAvatar.src = currentUser.avatar;
+            if (uiName) uiName.textContent = currentUser.name;
         }
-
-        // Vẽ lại toàn bộ Bảng tin, Thông báo và Chat
         renderPosts();
         renderNotifications();
-
-        if(chatRoom.style.display === 'block') {
-            renderMessages();
-        }
-        if(chatUserList.style.display === 'block') {
-            openUserList();
-        }
+        if (chatRoom && chatRoom.style.display === 'block') renderMessages();
+        if (chatUserList && chatUserList.style.display === 'block') openUserList();
     }
 };
 
-// Bật "Camera giám sát" Firebase lên
 app.startListening();
 
-// Khởi tạo App ban đầu
 function initApp() {
-    authScreen.style.display = 'none';
-    mainApp.style.display = 'flex';
-    uiAvatar.src = currentUser.avatar;
-    uiName.textContent = currentUser.name;
+    if (authScreen) authScreen.style.display = 'none';
+    if (mainApp) mainApp.style.display = 'flex';
+    if (uiAvatar) uiAvatar.src = currentUser.avatar;
+    if (uiName) uiName.textContent = currentUser.name;
     renderPosts();
     renderNotifications();
 }
 
-// Kiểm tra xem đã lưu đăng nhập trước đó chưa
 const savedUserId = localStorage.getItem('miniface_logged_in_user');
-// Đợi 1 giây để Firebase kịp tải danh sách user về rồi mới check đăng nhập tự động
 setTimeout(() => {
     if (savedUserId && app.users.length > 0) {
         const user = app.users.find(u => u.id === parseInt(savedUserId));
-        if (user) { currentUser = user; initApp(); }
+        if (user) {
+            currentUser = user;
+            initApp();
+        }
     }
 }, 1000);
 
 function showMessage(text, isSuccess) {
+    if (!authMessage) return;
     authMessage.textContent = text;
     authMessage.style.color = isSuccess ? "#42b72a" : "#f02849";
 }
 
-// ---> GIỮ NGUYÊN TOÀN BỘ CODE TỪ SỰ KIỆN btnRegister.addEventListener TRỞ XUỐNG CŨ <---
+// ==========================================
+// 2. TÀI KHOẢN (ĐĂNG NHẬP / ĐĂNG KÝ / ĐĂNG XUẤT)
+// ==========================================
+if (btnRegister) {
+    btnRegister.addEventListener('click', () => {
+        const name = authNameInput.value.trim();
+        const pass = authPasswordInput.value.trim();
+        if (!name || !pass) return showMessage("Vui lòng nhập đủ thông tin!", false);
+        try {
+            app.addUser(name, pass);
+            showMessage("Đăng ký thành công!", true);
+        } catch (err) {
+            showMessage(err.message, false);
+        }
+    });
+}
 
-btnRegister.addEventListener('click', () => {
-    const name = authNameInput.value.trim();
-    const pass = authPasswordInput.value.trim();
-    if (!name || !pass) return showMessage("Vui lòng nhập đủ thông tin!", false);
-    try {
-        app.addUser(name, pass);
-        showMessage("Đăng ký thành công!", true);
-    } catch (err) {
-        showMessage(err.message, false);
-    }
-});
+if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+        const name = authNameInput.value.trim();
+        const pass = authPasswordInput.value.trim();
+        const user = app.loginUser(name, pass);
+        if (user) {
+            currentUser = user;
+            localStorage.setItem('miniface_logged_in_user', user.id);
+            initApp();
+        } else {
+            showMessage("Sai thông tin đăng nhập!", false);
+        }
+    });
+}
 
-btnLogin.addEventListener('click', () => {
-    const name = authNameInput.value.trim();
-    const pass = authPasswordInput.value.trim();
-    const user = app.loginUser(name, pass);
-    if (user) {
-        currentUser = user;
-        localStorage.setItem('miniface_logged_in_user', user.id);
-        initApp();
-    } else {
-        showMessage("Sai thông tin đăng nhập!", false);
-    }
-});
-
-btnLogout.addEventListener('click', () => {
-    currentUser = null;
-    localStorage.removeItem('miniface_logged_in_user');
-    mainApp.style.display = 'none';
-    authScreen.style.display = 'block';
-});
-
-btnChangeAvatar.addEventListener('click', () => {
-    const newUrl = prompt("Dán link ảnh đại diện mới vào đây:");
-    if (newUrl && newUrl.trim() !== "") {
-        app.updateAvatar(currentUser.id, newUrl.trim());
-        uiAvatar.src = newUrl.trim();
-        renderPosts();
-    }
-});
+if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+        currentUser = null;
+        localStorage.removeItem('miniface_logged_in_user');
+        mainApp.style.display = 'none';
+        authScreen.style.display = 'block';
+    });
+}
 
 // ==========================================
-// 2. THÔNG BÁO
+// 3. CÔNG CỤ UP ẢNH LÊN IMGBB
+// ==========================================
+async function uploadToImgBB(file) {
+    const apiKey = '9ffa5dbd7d2b183fb780fdceb6f0a7d1';
+    const formData = new FormData();
+    formData.append('image', file);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: formData
+    });
+    const data = await res.json();
+    if (data.success) return data.data.url;
+    throw new Error("Không up được ảnh!");
+}
+
+if (btnChangeAvatar) {
+    btnChangeAvatar.addEventListener('click', () => {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const originalText = btnChangeAvatar.innerHTML;
+            btnChangeAvatar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>...';
+            btnChangeAvatar.disabled = true;
+            try {
+                const newUrl = await uploadToImgBB(file);
+                app.updateAvatar(currentUser.id, newUrl);
+                if (uiAvatar) uiAvatar.src = newUrl;
+                renderPosts();
+            } catch (err) {
+                alert("Lỗi: " + err.message);
+            } finally {
+                btnChangeAvatar.innerHTML = originalText;
+                btnChangeAvatar.disabled = false;
+            }
+        };
+        fileInput.click();
+    });
+}
+
+// ==========================================
+// 4. THÔNG BÁO
 // ==========================================
 function renderNotifications() {
+    if (!notifyBadge || !notifyList) return;
     const myNotifs = app.notifications.filter(n => n.receiverId === currentUser.id).reverse();
     const unreadCount = myNotifs.filter(n => !n.isRead).length;
 
@@ -160,24 +205,27 @@ function renderNotifications() {
         : myNotifs.map(n => `<li style="padding: 10px; border-bottom: 1px solid #eee; background: ${n.isRead ? 'transparent' : '#e7f3ff'}">${n.message}</li>`).join('');
 }
 
-btnNotify.addEventListener('click', (e) => {
-    e.preventDefault();
-    const isHidden = notifyDropdown.style.display === 'none';
-    notifyDropdown.style.display = isHidden ? 'block' : 'none';
-    if (isHidden) {
-        app.markNotificationsAsRead(currentUser.id);
-        renderNotifications();
-    }
-});
+if (btnNotify) {
+    btnNotify.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isHidden = notifyDropdown.style.display === 'none';
+        notifyDropdown.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+            app.markNotificationsAsRead(currentUser.id);
+            renderNotifications();
+        }
+    });
+}
 
 // ==========================================
-// 3. BÀI VIẾT (FEED)
+// 5. BÀI VIẾT (FEED) & CHỌN ẢNH
 // ==========================================
 function formatTime(iso) {
     return new Date(iso).toLocaleString('vi-VN');
 }
 
 function renderPosts(dataToShow = app.posts) {
+    if (!newsFeed) return;
     newsFeed.innerHTML = '';
     [...dataToShow].reverse().forEach(post => {
         const deleteBtnHTML = (currentUser.id === post.user.id)
@@ -231,105 +279,146 @@ function renderPosts(dataToShow = app.posts) {
     });
 }
 
-btnPost.addEventListener('click', () => {
-    const content = postInput.value.trim();
-    const imageUrl = postImageUrl.value.trim();
-    if (content || imageUrl) {
-        app.addPost(currentUser.id, content, imageUrl);
-        postInput.value = '';
-        postImageUrl.value = '';
-        renderPosts();
-    }
-});
-
-searchInput.addEventListener('input', (e) => {
-    const keyword = e.target.value.toLowerCase().trim();
-    renderPosts(app.posts.filter(p => p.content.toLowerCase().includes(keyword) || p.user.name.toLowerCase().includes(keyword)));
-});
-
-newsFeed.addEventListener('click', (e) => {
-    const postItem = e.target.closest('.post-item');
-    if (!postItem) return;
-    const postId = parseInt(postItem.getAttribute('data-id'));
-
-    if (e.target.closest('.btn-like')) {
-        app.likePost(postId, currentUser.id);
-        renderPosts();
-        renderNotifications();
-    }
-    if (e.target.closest('.btn-delete-post')) {
-        if (confirm("Xóa bài viết này?")) {
-            app.deletePost(postId, currentUser.id);
-            renderPosts();
+if (postImageFile) {
+    postImageFile.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            selectedFile = file;
+            if (imagePreview) imagePreview.src = URL.createObjectURL(file);
+            if (imagePreviewContainer) imagePreviewContainer.style.display = 'block';
         }
-    }
-    if (e.target.closest('.btn-send-comment')) {
-        const input = postItem.querySelector('.input-comment');
-        if (input.value.trim()) {
-            app.commentPost(postId, currentUser.id, input.value.trim());
+    });
+}
+
+if (btnRemoveImage) {
+    btnRemoveImage.addEventListener('click', () => {
+        selectedFile = null;
+        postImageFile.value = '';
+        if (imagePreviewContainer) imagePreviewContainer.style.display = 'none';
+    });
+}
+
+if (btnPost) {
+    btnPost.addEventListener('click', async () => {
+        const content = postInput.value.trim();
+        if (!content && !selectedFile) return;
+
+        const originalText = btnPost.innerHTML;
+        btnPost.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang đăng...';
+        btnPost.disabled = true;
+
+        try {
+            let finalImageUrl = "";
+            if (selectedFile) {
+                finalImageUrl = await uploadToImgBB(selectedFile);
+            }
+            app.addPost(currentUser.id, content, finalImageUrl);
+
+            postInput.value = '';
+            selectedFile = null;
+            if (postImageFile) postImageFile.value = '';
+            if (imagePreviewContainer) imagePreviewContainer.style.display = 'none';
+        } catch (error) {
+            alert("Lỗi: " + error.message);
+        } finally {
+            btnPost.innerHTML = originalText;
+            btnPost.disabled = false;
+        }
+    });
+}
+
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const keyword = e.target.value.toLowerCase().trim();
+        renderPosts(app.posts.filter(p => p.content.toLowerCase().includes(keyword) || p.user.name.toLowerCase().includes(keyword)));
+    });
+}
+
+if (newsFeed) {
+    newsFeed.addEventListener('click', (e) => {
+        const postItem = e.target.closest('.post-item');
+        if (!postItem) return;
+        const postId = parseInt(postItem.getAttribute('data-id'));
+
+        if (e.target.closest('.btn-like')) {
+            app.likePost(postId, currentUser.id);
             renderPosts();
             renderNotifications();
         }
-    }
-});
+        if (e.target.closest('.btn-delete-post')) {
+            if (confirm("Xóa bài viết này?")) {
+                app.deletePost(postId, currentUser.id);
+                renderPosts();
+            }
+        }
+        if (e.target.closest('.btn-send-comment')) {
+            const input = postItem.querySelector('.input-comment');
+            if (input.value.trim()) {
+                app.commentPost(postId, currentUser.id, input.value.trim());
+                renderPosts();
+                renderNotifications();
+            }
+        }
+    });
+}
 
 // ==========================================
-// 4. TIN NHẮN (CHAT)
+// 6. TIN NHẮN (CHAT)
 // ==========================================
-menuMessages.addEventListener('click', (e) => {
-    e.preventDefault();
-    chatPopup.style.display = 'flex';
-    openUserList();
-});
+if (menuMessages) {
+    menuMessages.addEventListener('click', (e) => {
+        e.preventDefault();
+        chatPopup.style.display = 'flex';
+        openUserList();
+    });
+}
 
-btnCloseChat.addEventListener('click', () => {
-    chatPopup.style.display = 'none';
-});
-btnChatBack.addEventListener('click', () => {
-    openUserList();
-});
+if (btnCloseChat) btnCloseChat.addEventListener('click', () => chatPopup.style.display = 'none');
+if (btnChatBack) btnChatBack.addEventListener('click', () => openUserList());
 
 function openUserList() {
     currentChatPartnerId = null;
-    chatTitle.textContent = "Tin nhắn";
-    btnChatBack.style.display = 'none';
-    chatRoom.style.display = 'none';
-    chatFooter.style.display = 'none';
-    chatUserList.style.display = 'block';
+    if (chatTitle) chatTitle.textContent = "Tin nhắn";
+    if (btnChatBack) btnChatBack.style.display = 'none';
+    if (chatRoom) chatRoom.style.display = 'none';
+    if (chatFooter) chatFooter.style.display = 'none';
+    if (chatUserList) chatUserList.style.display = 'block';
 
     const otherUsers = app.users.filter(u => u.id !== currentUser.id);
     if (otherUsers.length === 0) {
-        chatUserList.innerHTML = '<p style="text-align:center; margin-top: 20px;">Chưa có ai khác!</p>';
+        if (chatUserList) chatUserList.innerHTML = '<p style="text-align:center; margin-top: 20px;">Chưa có ai khác!</p>';
         return;
     }
-    chatUserList.innerHTML = otherUsers.map(u => `
+    if (chatUserList) chatUserList.innerHTML = otherUsers.map(u => `
         <div class="chat-user-item" data-userid="${u.id}" style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid #eee; cursor:pointer;">
             <img src="${u.avatar}" style="width:40px; border-radius:50%;"><strong>${u.name}</strong>
         </div>
     `).join('');
 }
 
-chatUserList.addEventListener('click', (e) => {
-    const userItem = e.target.closest('.chat-user-item');
-    if (!userItem) return;
-    const partner = app.users.find(u => u.id === parseInt(userItem.getAttribute('data-userid')));
-    if (partner) {
-        currentChatPartnerId = partner.id;
-        openChatRoom(partner);
-    }
-});
+if (chatUserList) {
+    chatUserList.addEventListener('click', (e) => {
+        const userItem = e.target.closest('.chat-user-item');
+        if (!userItem) return;
+        const partner = app.users.find(u => u.id === parseInt(userItem.getAttribute('data-userid')));
+        if (partner) {
+            currentChatPartnerId = partner.id;
+            openChatRoom(partner);
+        }
+    });
+}
 
 function openChatRoom(partner) {
-    chatTitle.textContent = partner.name;
-    btnChatBack.style.display = 'block';
-    chatUserList.style.display = 'none';
-    chatRoom.style.display = 'block';
-    chatFooter.style.display = 'flex';
+    if (chatTitle) chatTitle.textContent = partner.name;
+    if (btnChatBack) btnChatBack.style.display = 'block';
+    if (chatUserList) chatUserList.style.display = 'none';
+    if (chatRoom) chatRoom.style.display = 'block';
+    if (chatFooter) chatFooter.style.display = 'flex';
     renderMessages();
 }
 
 function renderMessages() {
-    if (!currentChatPartnerId) return;
+    if (!currentChatPartnerId || !chatRoom) return;
     const history = app.getChatHistory(currentUser.id, currentChatPartnerId);
     chatRoom.innerHTML = history.length === 0
         ? '<p style="text-align:center; margin-top:20px;">Gửi lời chào đi nào!</p>'
@@ -343,10 +432,12 @@ function renderMessages() {
     chatRoom.scrollTop = chatRoom.scrollHeight;
 }
 
-btnSendChat.addEventListener('click', () => {
-    if (chatInput.value.trim() && currentChatPartnerId) {
-        app.sendMessage(currentUser.id, currentChatPartnerId, chatInput.value.trim());
-        chatInput.value = '';
-        renderMessages();
-    }
-});
+if (btnSendChat) {
+    btnSendChat.addEventListener('click', () => {
+        if (chatInput.value.trim() && currentChatPartnerId) {
+            app.sendMessage(currentUser.id, currentChatPartnerId, chatInput.value.trim());
+            chatInput.value = '';
+            renderMessages();
+        }
+    });
+}

@@ -1,6 +1,6 @@
 // NHẬP THƯ VIỆN FIREBASE TỪ INTERNET (KHÔNG CẦN CÀI NPM)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import {getDatabase, ref, set, onValue, remove} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
 // CHÌA KHÓA CỦA BẠN (Mình đã thêm databaseURL vào để tránh lỗi)
 const firebaseConfig = {
@@ -19,7 +19,10 @@ const db = getDatabase(firebaseApp);
 
 export class SocialNetwork {
     constructor() {
-        this.users = []; this.posts = []; this.notifications = []; this.messages = [];
+        this.users = [];
+        this.posts = [];
+        this.notifications = [];
+        this.messages = [];
         this.onDataChanged = null; // Biến này sẽ gọi main.js để vẽ lại màn hình khi có dữ liệu mới
     }
 
@@ -27,7 +30,7 @@ export class SocialNetwork {
     startListening() {
         onValue(ref(db, 'users'), (snapshot) => {
             this.users = snapshot.val() ? Object.values(snapshot.val()) : [];
-            if(this.onDataChanged) this.onDataChanged();
+            if (this.onDataChanged) this.onDataChanged();
         });
 
         onValue(ref(db, 'posts'), (snapshot) => {
@@ -37,24 +40,24 @@ export class SocialNetwork {
                 likes: p.likes || [],
                 comments: p.comments ? Object.values(p.comments) : []
             })) : [];
-            if(this.onDataChanged) this.onDataChanged();
+            if (this.onDataChanged) this.onDataChanged();
         });
 
         onValue(ref(db, 'notifications'), (snapshot) => {
             this.notifications = snapshot.val() ? Object.values(snapshot.val()) : [];
-            if(this.onDataChanged) this.onDataChanged();
+            if (this.onDataChanged) this.onDataChanged();
         });
 
         onValue(ref(db, 'messages'), (snapshot) => {
             this.messages = snapshot.val() ? Object.values(snapshot.val()) : [];
-            if(this.onDataChanged) this.onDataChanged();
+            if (this.onDataChanged) this.onDataChanged();
         });
     }
 
     addUser(name, password) {
         if (this.users.find(u => u.name.toLowerCase() === name.toLowerCase())) throw new Error("Tên đã tồn tại!");
         const newId = Date.now(); // Lên mạng phải dùng ID theo thời gian để không trùng nhau
-        const newUser = { id: newId, name, password, avatar: 'https://i.pravatar.cc/150?u=' + newId };
+        const newUser = {id: newId, name, password, avatar: 'https://i.pravatar.cc/150?u=' + newId};
         set(ref(db, 'users/' + newId), newUser); // Đẩy lên mây
         return newUser;
     }
@@ -65,12 +68,12 @@ export class SocialNetwork {
 
     updateAvatar(userId, newAvatarUrl) {
         const user = this.users.find(u => u.id === userId);
-        if(user) {
+        if (user) {
             user.avatar = newAvatarUrl;
             set(ref(db, 'users/' + userId), user);
             // Cập nhật lại các bài viết của user này
             this.posts.forEach(p => {
-                if(p.user.id === userId) {
+                if (p.user.id === userId) {
                     p.user.avatar = newAvatarUrl;
                     set(ref(db, 'posts/' + p.id), p);
                 }
@@ -81,13 +84,21 @@ export class SocialNetwork {
     addPost(userId, content, imageUrl) {
         const user = this.users.find(u => u.id === userId);
         const newId = Date.now();
-        const newPost = { id: newId, user, content, imageUrl, likes: [], comments: [], createdAt: new Date().toISOString() };
+        const newPost = {
+            id: newId,
+            user,
+            content,
+            imageUrl,
+            likes: [],
+            comments: [],
+            createdAt: new Date().toISOString()
+        };
         set(ref(db, 'posts/' + newId), newPost); // Đẩy lên mây
     }
 
     deletePost(postId, userId) {
         const post = this.posts.find(p => p.id === postId);
-        if(post && post.user.id === userId) {
+        if (post && post.user.id === userId) {
             remove(ref(db, 'posts/' + postId)); // Xóa khỏi mây
         }
     }
@@ -100,8 +111,12 @@ export class SocialNetwork {
             const index = likes.indexOf(actorId);
             let isLiked = false;
 
-            if (index === -1) { likes.push(actorId); isLiked = true; }
-            else { likes.splice(index, 1); }
+            if (index === -1) {
+                likes.push(actorId);
+                isLiked = true;
+            } else {
+                likes.splice(index, 1);
+            }
 
             set(ref(db, 'posts/' + postId + '/likes'), likes); // Cập nhật lượt thích lên mây
 
@@ -116,7 +131,7 @@ export class SocialNetwork {
         const actor = this.users.find(u => u.id === actorId);
         if (post && actor) {
             const commentId = Date.now();
-            const newComment = { id: commentId, user: actor, content: content, createdAt: new Date().toISOString() };
+            const newComment = {id: commentId, user: actor, content: content, createdAt: new Date().toISOString()};
             set(ref(db, `posts/${postId}/comments/${commentId}`), newComment);
 
             if (post.user.id !== actorId) {
@@ -127,7 +142,7 @@ export class SocialNetwork {
 
     addNotification(receiverId, message, postId) {
         const notifId = Date.now();
-        const notif = { id: notifId, receiverId, message, postId, isRead: false, createdAt: new Date().toISOString() };
+        const notif = {id: notifId, receiverId, message, postId, isRead: false, createdAt: new Date().toISOString()};
         set(ref(db, 'notifications/' + notifId), notif);
     }
 
@@ -141,7 +156,7 @@ export class SocialNetwork {
 
     sendMessage(senderId, receiverId, content) {
         const msgId = Date.now();
-        const msg = { id: msgId, senderId, receiverId, content, createdAt: new Date().toISOString() };
+        const msg = {id: msgId, senderId, receiverId, content, createdAt: new Date().toISOString()};
         set(ref(db, 'messages/' + msgId), msg); // Gửi tin nhắn thẳng lên mây
     }
 

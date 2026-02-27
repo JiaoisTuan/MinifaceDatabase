@@ -1,0 +1,491 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background: #f0f2f5;
+    min-height: 100vh;
+    color: #1c1e21;
+}
+
+/* Dùng lại Glassmorphism nhưng nhẹ nhàng hơn */
+.glass-effect {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+/* Nút bấm & Input */
+.btn-primary {
+    background: #1877f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-primary:hover {
+    background: #166fe5;
+}
+
+.btn-secondary {
+    background: #42b72a;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.input-field {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    margin-bottom: 15px;
+}
+
+/* Auth Screen */
+.auth-container {
+    max-width: 400px;
+    margin: 100px auto;
+    text-align: center;
+}
+
+/* CẤU TRÚC 2 CỘT CHÍNH */
+.app-container {
+    display: flex;
+    max-width: 1000px;
+    margin: 20px auto;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* --- SIDEBAR (Trái) --- */
+.sidebar {
+    width: 300px;
+    position: sticky;
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.brand h1 {
+    color: #1877f2;
+    font-size: 1.5rem;
+}
+
+.profile-card {
+    text-align: center;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.avatar-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.avatar-wrapper img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #1877f2;
+}
+
+.edit-avatar-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #e4e6eb;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.edit-avatar-btn:hover {
+    background: #d8dadf;
+}
+
+.side-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.side-menu a {
+    text-decoration: none;
+    color: #1c1e21;
+    font-weight: 500;
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.2s;
+}
+
+.side-menu a:hover, .side-menu a.active {
+    background: #e7f3ff;
+    color: #1877f2;
+}
+
+.btn-logout-side {
+    background: #f02849;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: auto;
+}
+
+/* --- MAIN CONTENT (Phải) --- */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-bar {
+    padding: 10px 20px;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #65676b;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 10px 10px 10px 40px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: #f0f2f5;
+    outline: none;
+}
+
+.create-post textarea {
+    width: 100%;
+    height: 60px;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.post-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.image-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0f2f5;
+    padding: 8px 15px;
+    border-radius: 20px;
+    flex: 1;
+    margin-right: 15px;
+}
+
+.image-input-wrapper input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+}
+
+/* --- BÀI VIẾT --- */
+.post-item {
+    padding: 15px 20px;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.post-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.post-header-left img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.post-time {
+    font-size: 0.8rem;
+    color: #65676b;
+}
+
+.btn-delete-post {
+    background: none;
+    border: none;
+    color: #65676b;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+.btn-delete-post:hover {
+    color: #f02849;
+}
+
+.post-content-text {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.post-image {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.post-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #65676b;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.post-actions {
+    display: flex;
+    gap: 5px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.action-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: #65676b;
+    border-radius: 5px;
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    background: #f0f2f5;
+}
+
+/* Bình luận */
+.comment-list {
+    list-style: none;
+    margin-bottom: 15px;
+}
+
+.comment-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.comment-item img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-bubble {
+    background: #f0f2f5;
+    padding: 8px 12px;
+    border-radius: 15px;
+}
+
+.comment-author {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.comment-text {
+    font-size: 0.9rem;
+}
+
+.comment-input-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.input-comment {
+    flex: 1;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: #f0f2f5;
+    outline: none;
+}
+
+.btn-send-comment {
+    border: none;
+    background: none;
+    color: #1877f2;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+/* --- HỆ THỐNG CHAT POPUP --- */
+.chat-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 320px;
+    height: 450px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid #ddd;
+}
+
+.chat-header {
+    background: #1877f2;
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-header h3 {
+    font-size: 1rem;
+    margin: 0;
+    flex: 1;
+    text-align: center;
+}
+
+.chat-header .btn-icon {
+    color: white;
+    background: transparent;
+}
+
+.chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f0f2f5;
+}
+
+.chat-footer {
+    padding: 10px;
+    background: white;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-footer input {
+    flex: 1;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    padding: 8px 15px;
+    outline: none;
+    background: #f0f2f5;
+}
+
+.chat-footer button {
+    padding: 8px 15px;
+    border-radius: 20px;
+}
+
+/* Danh sách user để chat */
+.chat-user-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-bottom: 5px;
+    background: white;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.chat-user-item:hover {
+    background: #e7f3ff;
+}
+
+.chat-user-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Bong bóng tin nhắn */
+.msg-bubble {
+    max-width: 75%;
+    padding: 8px 12px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    clear: both;
+    word-wrap: break-word;
+}
+
+.msg-sent {
+    float: right;
+    background: #1877f2;
+    color: white;
+    border-bottom-right-radius: 3px;
+}
+
+.msg-received {
+    float: left;
+    background: #e4e6eb;
+    color: #1c1e21;
+    border-bottom-left-radius: 3px;
+}

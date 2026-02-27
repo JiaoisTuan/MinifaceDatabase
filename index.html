@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniFace Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<div id="auth-screen" class="glass-effect auth-container">
+    <h2><i class="fa-solid fa-globe"></i> MiniFace</h2>
+    <p class="subtitle">Đăng nhập để kết nối thế giới</p>
+    <input type="text" id="auth-name" class="input-field" placeholder="Tên hiển thị...">
+    <input type="password" id="auth-password" class="input-field" placeholder="Mật khẩu...">
+    <div class="auth-buttons">
+        <button id="btn-login" class="btn-primary">Đăng nhập</button>
+        <button id="btn-register" class="btn-secondary">Đăng ký</button>
+    </div>
+    <p id="auth-message"></p>
+</div>
+
+<div class="app-container" id="main-app" style="display: none;">
+
+    <aside class="sidebar glass-effect">
+        <div class="brand"><h1><i class="fa-solid fa-globe"></i> MiniFace</h1></div>
+        <div class="profile-card">
+            <div class="avatar-wrapper">
+                <img id="current-user-avatar" src="" alt="Avatar">
+                <button id="btn-change-avatar" class="edit-avatar-btn" title="Đổi ảnh đại diện"><i
+                        class="fa-solid fa-camera"></i></button>
+            </div>
+            <h3 id="current-user-name">Người dùng</h3>
+        </div>
+
+        <nav class="side-menu">
+            <a href="#" class="active"><i class="fa-solid fa-house"></i> Bảng tin</a>
+            <a href="#" id="menu-messages"><i class="fa-solid fa-comment-dots"></i> Tin nhắn</a>
+
+            <div class="notification-wrapper" style="width: 100%; position: relative;">
+                <a href="#" id="btn-notify"
+                   style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                    <span><i class="fa-solid fa-bell"></i> Thông báo</span>
+                    <span id="notify-badge" class="badge"
+                          style="display: none; background: #f02849; color: white; padding: 2px 6px; border-radius: 10px; font-size: 12px;">0</span>
+                </a>
+                <div id="notify-dropdown" class="notify-dropdown glass-effect"
+                     style="display: none; position: absolute; left: 105%; top: 0; min-width: 280px; z-index: 1000;">
+                    <h3 style="margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Thông báo</h3>
+                    <ul id="notify-list" style="list-style: none; max-height: 300px; overflow-y: auto;"></ul>
+                </div>
+            </div>
+        </nav>
+        <button id="btn-logout" class="btn-logout-side"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+        </button>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar glass-effect">
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="search-input" class="search-bar" placeholder="Tìm kiếm bài viết...">
+            </div>
+        </div>
+
+        <section class="create-post glass-effect">
+            <textarea id="post-content" placeholder="Bạn đang nghĩ gì thế?"></textarea>
+            <div class="post-actions-row">
+                <div class="image-input-wrapper">
+                    <i class="fa-regular fa-image"></i>
+                    <input type="text" id="post-image-url" placeholder="Dán link ảnh vào đây...">
+                </div>
+                <button id="btn-post" class="btn-primary"><i class="fa-solid fa-paper-plane"></i> Đăng</button>
+            </div>
+        </section>
+        <section id="news-feed"></section>
+    </main>
+</div>
+
+<div id="chat-popup" class="chat-popup glass-effect" style="display: none;">
+    <div class="chat-header"
+         style="background: #1877f2; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0;">
+        <button id="btn-chat-back"
+                style="display: none; background: none; border: none; color: white; cursor: pointer;"><i
+                class="fa-solid fa-arrow-left"></i></button>
+        <h3 id="chat-title" style="margin: 0; font-size: 16px;">Tin nhắn</h3>
+        <button id="btn-close-chat" style="background: none; border: none; color: white; cursor: pointer;"><i
+                class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="chat-user-list" class="chat-body"
+         style="padding: 10px; overflow-y: auto; height: 320px; background: white;"></div>
+    <div id="chat-room" class="chat-body"
+         style="display: none; padding: 10px; overflow-y: auto; height: 320px; background: #f0f2f5;"></div>
+    <div id="chat-footer" class="chat-footer"
+         style="display: none; padding: 10px; border-top: 1px solid #ddd; background: white; display: flex;">
+        <input type="text" id="chat-input" placeholder="Aa..."
+               style="flex: 1; padding: 8px 12px; border-radius: 20px; border: 1px solid #ddd; outline: none;">
+        <button id="btn-send-chat" class="btn-primary"
+                style="margin-left: 5px; border-radius: 20px; padding: 8px 15px;"><i
+                class="fa-solid fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script type="module" src="./main.js"></script>
+</body>
+</html>
